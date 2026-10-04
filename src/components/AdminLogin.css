@@ -1,0 +1,39 @@
+.admin-login {
+  display: grid;
+  min-height: 60vh;
+  place-items: center;
+}
+
+.admin-login__form {
+  display: grid;
+  gap: 0.75rem;
+  width: min(100%, 28rem);
+  padding: 2rem;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+}
+
+.admin-login__form h1,
+.admin-login__form p {
+  margin: 0;
+}
+
+.admin-login__form p {
+  color: var(--color-text-muted);
+  margin-bottom: 0.75rem;
+}
+
+.admin-login__form input {
+  width: 100%;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-background);
+  color: inherit;
+}
+
+.admin-login__error {
+  color: #b91c1c;
+  font-size: 0.9rem;
+}

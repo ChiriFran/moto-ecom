@@ -1,0 +1,87 @@
+:root {
+  /* Colors */
+  --color-primary: #e63946;
+  --color-primary-light: #f0666f;
+  --color-primary-dark: #c02531;
+  --color-secondary: #191b1f;
+  --color-secondary-light: #2d3037;
+  --color-secondary-dark: #0c0d10;
+  --color-white: #ffffff;
+  --color-gold-light: #e2c260;
+  --color-gold-dark: #a5801b;
+
+  /* Text */
+  --color-text: #191b1f;
+  --color-text-soft: #5a6068;
+  --color-text-light: #969ba4;
+  --color-text-muted: #7a8088;
+  --color-text-inverse: #ffffff;
+
+  /* Background */
+  --color-background: #ffffff;
+  --color-bg: #ffffff;
+  --color-background-soft: #f4f5f7;
+  --color-background-muted: #eceef1;
+  --color-border: #dedfe3;
+  --color-border-light: #eceef1;
+
+  /* Status */
+  --color-success: #1a8351;
+  --color-error: #d32f2f;
+  --color-warning: #e63946;
+
+  /* Typography */
+  --font-heading: 'Spire', 'Georgia', serif;
+  --font-body: 'Quicksand', 'Segoe UI', sans-serif;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.25rem;
+  --text-5xl: 3rem;
+  --text-6xl: 3.75rem;
+
+  /* Spacing */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+  --space-3xl: 4rem;
+  --space-4xl: 6rem;
+
+  /* Border radius */
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+  --shadow-lg: 0 8px 30px rgba(0,0,0,0.1);
+  --shadow-xl: 0 16px 50px rgba(0,0,0,0.12);
+
+  /* Transitions */
+  --transition-fast: 150ms ease;
+  --transition-base: 250ms ease;
+  --transition-slow: 400ms ease;
+
+  /* Layout */
+  --container-max: 1200px;
+  --container-narrow: 800px;
+  --header-height: 72px;
+
+  /* Z-index */
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-overlay: 300;
+  --z-modal: 400;
+  --z-toast: 500;
+}

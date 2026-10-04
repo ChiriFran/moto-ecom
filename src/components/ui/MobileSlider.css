@@ -1,0 +1,36 @@
+/* Mobile Slider - Base */
+.mobile-slider__track {
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mobile-slider__dots {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  padding-top: 24px;
+}
+
+.mobile-slider__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: none;
+  background-color: var(--color-text-light, #999);
+  opacity: 0.4;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.3s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mobile-slider__dot:active {
+  transform: scale(0.9);
+}
+
+.mobile-slider__dot--active {
+  background-color: var(--color-primary, #e63946);
+  opacity: 1;
+  width: 24px;
+  border-radius: 4px;
+}
