@@ -1,11 +1,22 @@
 import { useState, useEffect } from 'react';
 import { getAllProducts, createProduct, updateProduct, deleteProduct, uploadProductImage } from '../services/products';
 import { getAllCategories } from '../services/categories';
+import { useCart } from '../context/CartContext';
 import { formatPrice } from '../utils/formatPrice';
 import { slugify } from '../utils/slugify';
 import './AdminProducts.css';
 
 const PLACEHOLDER_IMAGE = '/images/placeholder-product.svg';
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/avif'];
+
+// Los campos numericos llegan como string desde los inputs, asi que un valor
+// vacio tiene que distinguirse de un 0 legitimo.
+const parseNumber = (value) => {
+  if (value === '' || value === null || value === undefined) return NaN;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : NaN;
+};
 
 const INITIAL_FORM = {
   nombre: '',
@@ -25,8 +36,10 @@ const INITIAL_FORM = {
 };
 
 const AdminProducts = () => {
+  const { showToast } = useCart();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
   const [categories, setCategories] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('todas');
@@ -39,24 +52,27 @@ const AdminProducts = () => {
   const [saving, setSaving] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
-  useEffect(() => {
-    const loadInitial = async () => {
-      setLoading(true);
-      try {
-        const [productsData, categoriesData] = await Promise.all([
-          getAllProducts(),
-          getAllCategories(),
-        ]);
-        setProducts(productsData);
-        setCategories(categoriesData);
-      } catch (error) {
-        console.error('Error loading data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadInitial();
-  }, []);
+  const loadInitial = async () => {
+  setLoading(true);
+  setLoadError('');
+  try {
+    const [productsData, categoriesData] = await Promise.all([
+      getAllProducts(),
+      getAllCategories(),
+    ]);
+    setProducts(productsData);
+    setCategories(categoriesData);
+  } catch (error) {
+    console.error('Error loading data:', error);
+    setLoadError('No se pudieron cargar los productos.');
+  } finally {
+    setLoading(false);
+  }
+};
+
+useEffect(() => {
+  loadInitial();
+}, []);
 
   useEffect(() => {
     document.body.style.overflow = drawerOpen ? 'hidden' : '';
@@ -128,6 +144,19 @@ const AdminProducts = () => {
   const handleImageChange = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+      showToast('Formato no válido. Usá JPG, PNG, WEBP o AVIF.', 'error');
+      e.target.value = '';
+      return;
+    }
+
+    if (file.size > MAX_IMAGE_BYTES) {
+      showToast('La imagen supera los 5 MB.', 'error');
+      e.target.value = '';
+      return;
+    }
+
     setImageFile(file);
     setUsePlaceholder(false);
     const reader = new FileReader();
@@ -150,9 +179,24 @@ const AdminProducts = () => {
   };
 
   const handleSave = async () => {
-    if (!formData.nombre.trim()) return alert('El nombre es obligatorio');
-    if (!formData.categoria) return alert('Seleccioná una categoría');
-    if (!formData.precio && formData.precio !== 0) return alert('Ingresá un precio');
+    const nombre = formData.nombre.trim();
+    const slug = slugify(formData.slug || nombre);
+    const precio = parseNumber(formData.precio);
+    const stock = parseNumber(formData.stock);
+    const precioTransferencia = formData.precioTransferencia === ''
+      ? precio
+      : parseNumber(formData.precioTransferencia);
+    const orden = parseNumber(formData.orden);
+
+    if (!nombre) return showToast('El nombre es obligatorio.', 'error');
+    if (!formData.categoria) return showToast('Seleccioná una categoría.', 'error');
+    if (!slug) return showToast('Ingresá un nombre o un slug válido.', 'error');
+    if (!Number.isFinite(precio) || precio < 0) return showToast('Ingresá un precio válido.', 'error');
+    if (!Number.isFinite(precioTransferencia) || precioTransferencia < 0) return showToast('Revisá el precio de transferencia.', 'error');
+    if (!Number.isFinite(stock) || stock < 0) return showToast('El stock no puede ser negativo.', 'error');
+
+    const duplicate = products.find((product) => product.slug === slug && product.id !== editingProduct?.id);
+    if (duplicate) return showToast(`El slug "${slug}" ya lo usa "${duplicate.nombre}".`, 'error');
 
     setSaving(true);
     try {
@@ -162,22 +206,22 @@ const AdminProducts = () => {
         imageUrl = '';
       } else if (imageFile) {
         const ext = imageFile.name.split('.').pop();
-        const fileName = `${formData.slug || Date.now()}.${ext}`;
+        const fileName = `${slug}.${ext}`;
         imageUrl = await uploadProductImage(imageFile, fileName);
       }
 
       const productData = {
-        nombre: formData.nombre.trim(),
-        slug: formData.slug || slugify(formData.nombre),
+        nombre,
+        slug,
         descripcion: formData.descripcion.trim(),
         descripcionCorta: formData.descripcionCorta.trim(),
         categoria: formData.categoria,
-        precio: Number(formData.precio),
-        precioTransferencia: formData.precioTransferencia ? Number(formData.precioTransferencia) : Number(formData.precio),
+        precio,
+        precioTransferencia,
         presentacion: formData.presentacion.trim(),
         especificaciones: formData.especificaciones,
-        stock: formData.stock !== '' ? Number(formData.stock) : 0,
-        orden: formData.orden !== '' ? Number(formData.orden) : 0,
+        stock,
+        orden: Number.isFinite(orden) ? orden : 0,
         activo: formData.activo,
         destacado: formData.destacado,
         imagen: imageUrl,
@@ -194,9 +238,10 @@ const AdminProducts = () => {
       }
 
       closeForm();
+      showToast(editingProduct ? 'Producto actualizado' : 'Producto creado');
     } catch (error) {
       console.error('Error saving product:', error);
-      alert('Error al guardar el producto');
+      showToast('No se pudo guardar el producto.', 'error');
     } finally {
       setSaving(false);
     }
@@ -207,14 +252,30 @@ const AdminProducts = () => {
     try {
       await deleteProduct(product.id);
       setProducts((prev) => prev.filter((p) => p.id !== product.id));
+      showToast('Producto eliminado');
     } catch (error) {
       console.error('Error deleting product:', error);
-      alert('Error al eliminar el producto');
+      showToast('No se pudo eliminar el producto.', 'error');
     }
   };
 
   if (loading) {
     return <p className="admin-products__loading">Cargando productos...</p>;
+  }
+
+  if (loadError) {
+    return (
+      <div className="admin-products__empty">
+        <p>{loadError}</p>
+        <button
+          className="btn btn-primary btn-sm"
+          type="button"
+          onClick={loadInitial}
+        >
+          Reintentar
+        </button>
+      </div>
+    );
   }
 
   return (

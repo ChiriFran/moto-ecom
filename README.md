@@ -66,6 +66,35 @@ public/images/  # recursos estáticos (hero, editoriales, categorías)
 
 Nombre, tagline, WhatsApp, email, Instagram y dominio se configuran en `src/config/store.js`.
 
+## Estados de pedido
+
+El flujo y las transiciones validas viven en `src/config/orderStatus.js`.
+
+```
+pendiente ──> enviada ──> entregada
+    │            │
+    └────────────┴──────> cancelada (terminal)
+```
+
+- `confirmada` ya no se asigna desde el panel. El estado se conserva en
+  `STATUS_LABELS` solo para poder mostrar pedidos viejos que quedaron ahi; esos
+  pedidos se pueden migrar a `enviada` o `entregada`.
+- `cancelada` es terminal: no tiene transiciones de salida, asi que un pedido
+  cancelado no se puede volver a marcar como enviado o entregado.
+- La cancelacion se hace solo con su propio boton (`cancelOrder` en
+  `src/services/orders.js`) porque ademas devuelve el stock. `updateOrderStatus`
+  rechaza `cancelada` para que nadie pueda cancelar sin devolver stock.
+- `cancelOrder` valida el estado **dentro de la transaccion**, asi que un
+  segundo intento de cancelar el mismo pedido falla en vez de sumar el stock dos
+  veces.
+
+Los ingresos, las unidades vendidas y el producto mas vendido del resumen cuentan
+solo pedidos en `enviada` o `entregada`.
+
 ## Deploy
 
 Vercel. `vercel.json` ya tiene el rewrite de SPA hacia `index.html`.
+
+Las variables `VITE_*` hay que definirlas tambien en el dashboard de Vercel: al
+estar `.env` en `.gitignore` nunca se sube al repo. Si falta `VITE_ADMIN_UID` en
+el entorno de deploy, `/admin` rechaza el acceso.

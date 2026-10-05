@@ -1,6 +1,12 @@
 import { useMemo, useState } from 'react';
 import { formatPrice } from '../utils/formatPrice';
-import { STATUS_LABELS, normalizeWhatsAppPhone, buildWhatsAppUrl } from '../config/orderStatus';
+import {
+  isCancelled,
+  getStatusLabel,
+  formatOrderDate,
+  normalizeWhatsAppPhone,
+  buildWhatsAppUrl,
+} from '../config/orderStatus';
 import './Admin.css';
 
 const getInitials = (name) =>
@@ -10,11 +16,6 @@ const getInitials = (name) =>
     .slice(0, 2)
     .map((p) => (p[0] || '').toUpperCase())
     .join('');
-
-const formatDate = (value) => {
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? '—' : date.toLocaleDateString('es-AR');
-};
 
 const AdminCustomers = ({ orders }) => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -38,6 +39,7 @@ const AdminCustomers = ({ orders }) => {
           ? `mail:${nameKey}`
           : `anon:${nameKey}|${order.id}`;
       const createdAt = order.createdAt || '';
+      const cancelado = isCancelled(order.estado);
 
       if (!map.has(key)) {
         map.set(key, {
@@ -47,16 +49,27 @@ const AdminCustomers = ({ orders }) => {
           telefono,
           email,
           localidad,
+          // Los pedidos cancelados no cuentan para pedidos/total, pero si se
+          // listan para que el historial siga siendo completo.
           pedidos: 0,
+          cancelados: 0,
           total: 0,
           ultimo: createdAt,
+          ultimoActivo: '',
           ordenes: [],
         });
       }
 
       const customer = map.get(key);
-      customer.pedidos += 1;
-      customer.total += order.total || 0;
+
+      if (cancelado) {
+        customer.cancelados += 1;
+      } else {
+        customer.pedidos += 1;
+        customer.total += Number(order.total) || 0;
+        if (createdAt && createdAt > customer.ultimoActivo) customer.ultimoActivo = createdAt;
+      }
+
       if (createdAt && createdAt > customer.ultimo) customer.ultimo = createdAt;
       customer.ordenes.push({ id: order.id, total: order.total || 0, createdAt, estado: order.estado });
     });
@@ -117,7 +130,10 @@ const AdminCustomers = ({ orders }) => {
         <div className="admin__detail-section">
           <h3>Resumen</h3>
           <p>{selectedCustomer.pedidos} {selectedCustomer.pedidos === 1 ? 'pedido' : 'pedidos'} · {formatPrice(selectedCustomer.total)} gastados</p>
-          <p>Último pedido: {formatDate(selectedCustomer.ultimo)}</p>
+          {selectedCustomer.cancelados > 0 && (
+            <p>{selectedCustomer.cancelados} {selectedCustomer.cancelados === 1 ? 'pedido cancelado' : 'pedidos cancelados'}</p>
+          )}
+          <p>Último pedido: {formatOrderDate(selectedCustomer.ultimoActivo || selectedCustomer.ultimo)}</p>
         </div>
 
         <div className="admin__detail-section">
@@ -128,8 +144,8 @@ const AdminCustomers = ({ orders }) => {
             selectedCustomer.ordenes.map((order) => (
               <div key={order.id} className="admin__detail-product">
                 <span>{order.id}</span>
-                <span>{formatDate(order.createdAt)} · {formatPrice(order.total)}</span>
-                <span>{STATUS_LABELS[order.estado] || order.estado || ''}</span>
+                <span>{formatOrderDate(order.createdAt)} · {formatPrice(order.total)}</span>
+                <span>{getStatusLabel(order.estado)}</span>
               </div>
             ))
           )}
@@ -184,7 +200,8 @@ const AdminCustomers = ({ orders }) => {
                   <span>{formatPrice(customer.total)}</span>
                 </div>
                 <div className="admin__order-date">
-                  Último pedido: {formatDate(customer.ultimo)}
+                  Último pedido: {formatOrderDate(customer.ultimo)}
+                  {customer.cancelados > 0 && ` · ${customer.cancelados} cancelado${customer.cancelados === 1 ? '' : 's'}`}
                 </div>
                 {whatsAppUrlFor(customer) && (
                   <a

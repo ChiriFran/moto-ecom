@@ -186,6 +186,10 @@
   font-size: var(--text-sm);
 }
 
+.admin-products__empty > * + * {
+  margin-top: 1rem;
+}
+
 /* ===== Cards mobile ===== */
 .admin-products__cards {
   display: none;
