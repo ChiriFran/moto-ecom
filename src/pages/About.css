@@ -19,7 +19,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background-image: url('/images/banner-tienda.png');
+  background-image: url('/images/banner-moto.png');
   background-size: cover;
   background-position: center;
   opacity: 0.35;
@@ -124,7 +124,7 @@
   border-radius: var(--radius-lg);
   overflow: hidden;
   aspect-ratio: 1/1;
-  background: url('/public/images/about-img-2.png') center/cover no-repeat;
+  background: url('/images/about-img-2.png') center/cover no-repeat;
   transform: translateY(-100%);
   opacity: 0;
 }

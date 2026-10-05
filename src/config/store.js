@@ -6,6 +6,7 @@ export const storeConfig = {
   instagram: 'https://instagram.com/motoaccesorios',
   address: '',
   domain: 'https://motoaccesorios.com.ar',
+  ogImage: '/images/hero-moto.png',
   currency: 'ARS',
   locale: 'es-AR',
 };

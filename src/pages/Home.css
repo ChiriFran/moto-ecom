@@ -14,7 +14,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background-image: url('/images/banner-tienda.png');
+  background-image: url('/images/banner-moto.png');
   background-size: cover;
   background-position: center;
   opacity: 0.35;
@@ -251,15 +251,29 @@
 }
 
 .categories__grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: var(--space-lg);
+}
+
+.categories__grid > .category-circle {
+  flex: 0 1 130px;
+  max-width: 170px;
+}
+
+.categories__grid > .spinner {
+  flex: 1 1 100%;
 }
 
 @media (min-width: 768px) {
   .categories__grid {
-    grid-template-columns: repeat(6, 1fr);
-    gap: var(--space-xl);
+    gap: var(--space-xl) var(--space-2xl);
+  }
+
+  .categories__grid > .category-circle {
+    flex: 0 1 150px;
+    max-width: 190px;
   }
 }
 
@@ -380,27 +394,31 @@
   border-radius: var(--radius-xl);
 }
 
-/* Mixes */
-.mixes {
+/* Cascos */
+.cascos {
   background-color: var(--color-white);
 }
 
-.mixes__grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
+.cascos__grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: var(--space-lg);
 }
 
-@media (min-width: 768px) {
-  .mixes__grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: var(--space-xl);
-  }
+.cascos__grid > .product-card {
+  flex: 0 1 160px;
+  max-width: 240px;
 }
 
-@media (min-width: 1024px) {
-  .mixes__grid {
-    grid-template-columns: repeat(5, 1fr);
+@media (min-width: 768px) {
+  .cascos__grid {
+    gap: var(--space-xl);
+  }
+
+  .cascos__grid > .product-card {
+    flex: 0 1 210px;
+    max-width: 260px;
   }
 }
 

@@ -10,14 +10,14 @@ import RoadDivider from '../components/ui/RoadDivider';
 import './Home.css';
 
 const Home = () => {
-  const [helmetProducts, setHelmetProducts] = useState([]);
+  const [cascoProducts, setCascoProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const sectionsRef = useRef([]);
 
   useEffect(() => {
     const unsubscribe = subscribeToProducts((products) => {
-      setHelmetProducts(products.filter((p) => p.categoria === 'Cascos' && p.activo));
+      setCascoProducts(products.filter((p) => p.categoria === 'Cascos' && p.activo));
       setLoading(false);
     }, (error) => {
       console.error('Error loading products:', error);
@@ -69,7 +69,7 @@ const Home = () => {
           <div className="hero__visual">
             <div className="hero__image-wrapper">
               <div className="hero__blob"></div>
-              <img src="/images/hero-test.png" alt="Accesorios para motociclistas" title="Accesorios para moto Moto Accesorios Buenos Aires" className="hero__image" />
+              <img src="/images/hero-moto.png" alt="Accesorios para motociclistas" title="Accesorios para moto Moto Accesorios Buenos Aires" className="hero__image" />
             </div>
           </div>
           <div className="hero__cta">
@@ -110,12 +110,29 @@ const Home = () => {
         </div>
       </section>
 
+      {/* Cascos */}
+      <section className="cascos section" ref={addSectionRef}>
+        <div className="container">
+          <h2 className="section-title">Cascos para cada tipo de viaje</h2>
+          <p className="section-subtitle">Comprá cascos integrales, abiertos y cross online con homologación certificada.</p>
+          {loading ? (
+            <Spinner />
+          ) : (
+            <div className="cascos__grid">
+              {cascoProducts.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
       {/* Editorial 1 */}
       <section className="editorial section" ref={addSectionRef}>
         <div className="container">
           <div className="editorial__grid editorial__grid--reverse">
             <div className="editorial__image">
-              <img src="/images/back-1.png" alt="Equipamiento seleccionado" title="Nuestra selección de equipamiento para moto" className="editorial__img" />
+              <img src="/images/editorial-1.png" alt="Equipamiento seleccionado" title="Nuestra selección de equipamiento para moto" className="editorial__img" />
             </div>
             <div className="editorial__content">
               <span className="editorial__tag">Nuestra historia</span>
@@ -136,23 +153,6 @@ const Home = () => {
       {/* Featured Products */}
       <FeaturedProducts />
 
-      {/* Helmets Section */}
-      <section className="mixes section" ref={addSectionRef}>
-        <div className="container">
-          <h2 className="section-title">Cascos para cada tipo de viaje</h2>
-          <p className="section-subtitle">Comprá cascos integrales, abiertos y cross online con homologación certificada.</p>
-          {loading ? (
-            <Spinner />
-          ) : (
-            <div className="mixes__grid">
-              {helmetProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
-
       {/* Editorial 2 */}
       <section className="editorial section" ref={addSectionRef}>
         <div className="container">
@@ -170,7 +170,7 @@ const Home = () => {
               </Link>
             </div>
             <div className="editorial__image">
-              <img src="/images/back-2.png" alt="Equipamiento seleccionado" title="Nuestra selección de equipamiento para moto" className="editorial__img" />
+              <img src="/images/editorial-2.png" alt="Equipamiento seleccionado" title="Nuestra selección de equipamiento para moto" className="editorial__img" />
             </div>
           </div>
         </div>

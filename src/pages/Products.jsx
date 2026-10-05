@@ -20,6 +20,8 @@ const Products = () => {
   const sectionsRef = useRef([]);
 
   const activeCategory = searchParams.get('categoria') || '';
+  const activeCategoryName = categories.find((c) => c.slug === activeCategory)?.nombre || activeCategory;
+  const activeCategorySlug = slugify(activeCategoryName);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -80,7 +82,11 @@ const Products = () => {
     let result = [...products];
 
     if (activeCategory) {
-      result = result.filter((p) => slugify(p.categoria) === activeCategory);
+      const activeSlug = slugify(activeCategory);
+      result = result.filter((p) => {
+        const productSlug = slugify(p.categoria);
+        return productSlug === activeSlug || productSlug === activeCategorySlug;
+      });
     }
 
     if (searchTerm) {
@@ -111,7 +117,7 @@ const Products = () => {
     }
 
     setFilteredProducts(result);
-  }, [products, activeCategory, searchTerm, sortBy]);
+  }, [products, activeCategory, activeCategorySlug, searchTerm, sortBy]);
 
   const handleCategoryClick = (slug) => {
     if (slug === activeCategory) {

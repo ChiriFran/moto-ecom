@@ -130,7 +130,7 @@ const ProductDetail = () => {
       setMeta('description', siteDescription);
       setMeta('og:title', siteTitle, true);
       setMeta('og:description', siteDescription, true);
-      setMeta('og:image', '/images/og-image.png', true);
+      setMeta('og:image', storeConfig.ogImage, true);
       setMeta('og:url', siteUrl, true);
     };
   }, [slug, siteName, siteTitle, siteDescription, siteUrl]);
